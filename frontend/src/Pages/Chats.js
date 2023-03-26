@@ -4,8 +4,8 @@ import axios from "axios";
 const ChatPage = () => {
   const [chats, setchats] = useState([]);
   const fetchchats = async () => {
-    const { data } = await axios.get("/api/chat");
-    setchats(data);
+    // const { data } = await axios.get("/api/chat");
+    // setchats(data);
   };
 
   useEffect(() => {

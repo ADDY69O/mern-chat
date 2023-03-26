@@ -1,4 +1,6 @@
 import { React, useState } from "react";
+import axios from 'axios';
+import {useHistory} from 'react-router-dom'
 import {
   FormControl,
   FormLabel,
@@ -10,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useToast } from '@chakra-ui/react'
 const Signup = () => {
+  const history = useHistory();
   const toast=useToast()
   const [show, setshow] = useState(false);
   const [name, setName] = useState();
@@ -21,7 +24,67 @@ const Signup = () => {
   const handleonClick = () => {
     setshow(!show);
   };
-  const submitHandler = () => {};
+  const submitHandler = async() => {
+    setloading(true);
+    
+    if(password !==confirmpassword){
+      toast({
+        title:`password & confirm password not same`,
+        status:"warning",
+        duration:5000,
+        isClosable:true,
+        position:"top",
+    
+      })
+      setloading(false);
+return;
+    } 
+
+    try {
+      
+      const config={
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      }
+  
+      const res=  await axios.post('http://localhost:5000/api/user/',{name,email,password,pic},config
+      
+      )
+      console.log(res);
+      toast({
+        title:`Registration Successfull`,
+        status:"success",
+        duration:5000,
+        isClosable:true,
+        position:"top",
+    
+      })
+      localStorage.setItem("userInfo",JSON.stringify(res));
+      setloading(false);
+      history.push('/chat');
+    } catch (error) {
+      console.log(error);
+      toast({
+        title:"Error Occured!",
+        description:`${error.response.data.error}`,
+        status:"error",
+        duration:5000,
+        isClosable:true,
+        position:"top",
+    
+      })
+      setloading(false)
+      
+    }
+    
+    
+   
+
+
+
+
+  };
   const postDetails = async(pics) => {
     setloading(true);
     if(pics===undefined){
@@ -46,7 +109,7 @@ const Signup = () => {
         status:"warning",
         duration:5000,
         isClosable:true,
-        position:true,
+        position:"top",
     
       })
       setloading(false);
