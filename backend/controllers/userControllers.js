@@ -51,7 +51,41 @@ const {email,password}=req.body;
   else{
     return res.status(400).json({error:'Invalid Email or Password'})
   }
+})
+
+
+//{{url}}/api/user/&search={heres the search query}
+const allUsers=asyncHandler(async(req,res,)=>{
+
+
+  const keyword= req.query.search ?{
+
+     $or:
+      [
+        { "name" : { $regex:req.query.search, $options:"i"}},
+        { "email" : { $regex:req.query.search, $options:"i"}},
+      ]
     
+
+  }:{};
+try{
+  const user = await User.find(keyword).find({_id : { $ne : req.user.id}});
+
+  if(!user){
+    res.status(400).json({error: 'User not found'});
+
+  }  
+ 
+  res.status(200).json({message:"user find succesfully",user})
+}catch(err){
+res.status(400).json({err});
+}
+
+
+  
+
+
+
 
 
 
@@ -59,4 +93,5 @@ const {email,password}=req.body;
 
 
 
-module.exports = { registerUser,authUser };
+
+module.exports = { registerUser,authUser,allUsers };

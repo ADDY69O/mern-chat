@@ -14,7 +14,7 @@ const chatModel = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
     },
-    gorupAdmin: {
+    groupAdmin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
@@ -24,9 +24,9 @@ const chatModel = mongoose.Schema(
   }
 );
 
-const chat = mongoose.model("Chat", chatModel);
+const Chat = mongoose.model("Chat", chatModel);
 
-module.exports = chat;
+module.exports = Chat;
 
 //chatName
 //isGroupchat

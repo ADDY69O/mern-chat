@@ -1,4 +1,5 @@
 const userRoutes =require("./routes/userRoutes");
+const chatRoutes = require("./routes/chatRoutes")
 const express = require("express");
 const cors=require('cors')
 const dotenv = require("dotenv");
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to the backend");
 });
 app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
 app.use(notFound);
 app.use(errorHandle);
 const PORT = process.env.PORT;
