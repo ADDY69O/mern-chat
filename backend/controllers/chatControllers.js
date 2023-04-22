@@ -52,7 +52,7 @@ const accessChat= AsyncHandler (async(req,res)=>{
 const fetchChat =AsyncHandler(async(req,res)=>{
      try {
           const fetch = await Chat.find({users:{$elemMatch:{$eq:req.user.id}}}).populate("users","-password").populate("groupAdmin","-password").populate("latesMessage");
-          return res.status(200).json({success:true,fetch});
+          return res.status(200).json({fetch});
           
      } catch (error) {
           return res.status(400).json({success:false,error});
