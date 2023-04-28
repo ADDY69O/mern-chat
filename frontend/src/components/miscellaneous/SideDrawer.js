@@ -1,14 +1,14 @@
 import { Avatar, Box, Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Spinner, Text, Tooltip, useDisclosure, useToast } from '@chakra-ui/react'
 import axios from 'axios';
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import { ChatState } from '../../Context/ChatProvider'
 import UserListItem from '../UserAvtar/UserListItem';
 import ChatLoading from './ChatLoading';
 import ProfileModal from './ProfileModal';
 
 const SideDrawer = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [search, setSearch] = useState("")
@@ -20,13 +20,13 @@ const SideDrawer = () => {
     const {user,selectedChat, setSelectedChat,chats, setChats}= ChatState();
     const logOut =()=>{
         localStorage.removeItem("userInfo");
-        history.push('/')
+        navigate('/')
     }
     const toast = useToast();
     const accessChat =async (userId)=>{
 
 
-        console.log(userId);
+        
         try {
             setLoadingChat(true);
             const config ={
@@ -36,16 +36,24 @@ const SideDrawer = () => {
                 }
             }
         
-            const {data}=await axios.post('http://localhost:5000/api/chat',{userId},config);
-            console.log(data.FullChat);
-            if(!chats.find((c)=>c._id===data.FullChat._id))setChats([data,...chats])
-            setSelectedChat(data.FullChat);
+            const {data}=await axios.post('http://localhost:5000/api/chat/',{userId},config);
+            console.log(data.isChat[0]);
+            if(!chats.find((c)=>c._id===data.isChat[0]))setChats([data.isChat[0],...chats])
+            setSelectedChat(data.isChat[0]);
+            console.log(selectedChat);
             setLoadingChat(false);
             onClose();
 
 
         } catch (error) {
-            
+            toast({
+                title:"Internal Server error",
+                status:"warning",
+                duration:"5000",
+                isClosable:true,
+                position:"top-left"
+            });
+            return;
         }
     }
     const fetchChats = async()=>{

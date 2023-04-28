@@ -9,23 +9,24 @@ import {
   Tab,
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
 const HomePage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   
   useEffect(() => {
       
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-   
+    
+    console.log("at home page")
 
     if(userInfo){
-        history.push('/chat');
+        navigate('/chat');
     }
 
 
-}, [history])
+}, [navigate])
 
   return (
     <Container>

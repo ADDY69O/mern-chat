@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import axios from 'axios';
-import {useHistory} from 'react-router-dom'
+import { useNavigate} from 'react-router-dom'
 import {
   FormControl,
   FormLabel,
@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useToast } from '@chakra-ui/react'
 const Signup = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const toast=useToast()
   const [show, setshow] = useState(false);
   const [name, setName] = useState();
@@ -62,7 +62,7 @@ return;
       })
       localStorage.setItem("userInfo",JSON.stringify(res));
       setloading(false);
-      history.push('/chat');
+      navigate('/chat');
     } catch (error) {
       console.log(error);
       toast({

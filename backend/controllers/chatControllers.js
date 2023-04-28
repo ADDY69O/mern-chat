@@ -25,7 +25,7 @@ const accessChat= AsyncHandler (async(req,res)=>{
      select:"name pic email"});
 
      if(isChat.length>0){
-          return res.status(200).json({success:true,isChat});
+          return res.status(200).json({isChat});
 
      }
      else{
