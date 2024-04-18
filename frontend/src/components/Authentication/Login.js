@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {  useNavigate } from "react-router-dom";
-import { useToast } from '@chakra-ui/react'
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@chakra-ui/react";
 import {
   FormControl,
   FormLabel,
@@ -12,55 +12,52 @@ import {
   Button,
 } from "@chakra-ui/react";
 const Login = () => {
-  const toast=useToast();
-  const navigate=useNavigate();
-  const [loading, setloading] = useState(false)
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [loading, setloading] = useState(false);
   const [show, setshow] = useState(false);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const handleonClick = () => {
     setshow(!show);
   };
-  const submitHandler = async() => {
+  const submitHandler = async () => {
     setloading(true);
-    
-   
 
     try {
-      
-      const config={
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      }
-  
-      const res=  await axios.post('http://localhost:5000/api/user/login',{email,password},config
-      
-      )
-      console.log(res);
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const res = await axios.post(
+        "http://localhost:5000/api/user/login",
+        { email, password },
+        config
+      );
+
       toast({
-        title:`Login Successfull`,
-        status:"success",
-        duration:5000,
-        isClosable:true,
-        position:"top",
-    
-      })
-      localStorage.setItem("userInfo",JSON.stringify(res));
+        title: `Login Successfull`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      localStorage.setItem("userInfo", JSON.stringify(res));
       setloading(false);
-      navigate('/chat');
+      navigate("/chat");
     } catch (error) {
       console.log(error);
       toast({
-        title:"Error Occured!",
-        description:`${error.response.data.error}`,
-        status:"error",
-        duration:5000,
-        isClosable:true,
-        position:"top",
-    
-      })
-      setloading(false)
+        title: "Error Occured!",
+        description: `${error.response.data.error}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setloading(false);
     }
   };
   return (
