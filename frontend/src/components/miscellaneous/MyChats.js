@@ -91,10 +91,10 @@ export const MyChats = () => {
         w="100%"
         h="100%"
         borderRadius="lg"
-        overflowY="auto"
+        overflowY="hidden"
       >
         {chats ? (
-          <Stack overflowY="hidden">
+          <Stack overflowY="scroll">
             {chats.map((chat) => (
               <Box
                 onClick={() => setSelectedChat(chat)}

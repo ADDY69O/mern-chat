@@ -3,10 +3,11 @@ import { ChatState } from "../../Context/ChatProvider";
 import { Box, HStack, Stack, Text, VStack } from "@chakra-ui/react";
 import { calcLength } from "framer-motion";
 import { Input } from "@chakra-ui/react";
+import { getSender } from "../config/ChatLogics";
 
 const ChatBox = () => {
   const { selectedChat, user } = ChatState();
-  console.log(selectedChat);
+
   return (
     <Box>
       {selectedChat ? (
@@ -31,9 +32,10 @@ const ChatBox = () => {
           >
             <Text fontSize="4xl">
               {!selectedChat.isGroupChat
-                ? user._id === selectedChat.users[0]._id
-                  ? selectedChat.users[1].name
-                  : selectedChat.users[0].name
+                ? getSender(
+                    JSON.parse(localStorage.getItem("userInfo")),
+                    selectedChat.users
+                  )
                 : selectedChat.chatName}
             </Text>
             <i class="fa-solid fa-eye fa-2x"></i>
