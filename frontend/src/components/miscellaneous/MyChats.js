@@ -12,10 +12,7 @@ export const MyChats = () => {
   const [loading, setLoading] = useState(false);
   const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
   const [loggedUser, setloggedUser] = useState("");
-  const handleCheck = (chat) => {
-    console.log(chat);
-    console.log(chat.users);
-  };
+
   const fetchChats = async () => {
     try {
       setLoading(true);
@@ -89,7 +86,7 @@ export const MyChats = () => {
         p={3}
         bg="#F8F8F8"
         w="100%"
-        h="100%"
+        h="90%"
         borderRadius="lg"
         overflowY="hidden"
       >
@@ -106,7 +103,7 @@ export const MyChats = () => {
                 borderRadius="lg"
                 key={chat._id}
               >
-                <Text key={chat._id} onClick={() => handleCheck(chat)}>
+                <Text key={chat._id}>
                   {!chat.isGroupChat
                     ? getSender(loggedUser, chat.users)
                     : chat.chatName}
