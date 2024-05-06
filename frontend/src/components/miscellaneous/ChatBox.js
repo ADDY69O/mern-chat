@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Toast,
+  Tooltip,
   VStack,
   Wrap,
   WrapItem,
@@ -17,16 +18,43 @@ import { calcLength } from "framer-motion";
 import { Input } from "@chakra-ui/react";
 import { getSender, lastMessage } from "../config/ChatLogics";
 import axios from "axios";
+import io from "socket.io-client";
 
 const ChatBox = () => {
   const { selectedChat, user } = ChatState();
+  var selectedChatCompare;
 
   const [loading, setLoading] = useState(false);
   const [messageLoading, setmessageLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [socketConnected, SetsocketConnected] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   const toast = useToast();
+  useEffect(() => {
+    console.log(process.env.REACT_APP_ENDPOINT);
+    const newSocket = io(process.env.REACT_APP_ENDPOINT);
+    setSocket(newSocket);
+
+    newSocket.emit("join-user", user);
+    newSocket.on("connected", () => {
+      SetsocketConnected(true);
+    });
+    newSocket.on("message-received", (newMsg) => {
+      console.log(selectedChatCompare);
+      if (selectedChatCompare && selectedChatCompare._id === newMsg.chat._id) {
+        setMessages([...messages, newMsg]);
+      } else {
+        // Handle notification or other logic if needed
+        console.log("else condition");
+      }
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   const fetchMessages = async () => {
     try {
@@ -44,8 +72,10 @@ const ChatBox = () => {
       console.log(data);
       setMessages(data.fetch);
       setLoading(false);
+      socket.emit("join-chat", selectedChat._id);
     } catch (error) {
       setLoading(false);
+      console.log(error);
       toast({
         title: "Error while Fetching Messages",
         status: "warning",
@@ -56,6 +86,23 @@ const ChatBox = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    if (socketConnected) {
+      socket.on("message-received", (newMsg) => {
+        console.log(selectedChatCompare);
+        if (
+          selectedChatCompare &&
+          selectedChatCompare._id === newMsg.chat._id
+        ) {
+          setMessages([...messages, newMsg]);
+        } else {
+          // Handle notification or other logic if needed
+          console.log("else condition");
+        }
+      });
+    }
+  }, []);
 
   const handleSendMessage = async () => {
     try {
@@ -90,7 +137,8 @@ const ChatBox = () => {
       );
       setMessage("");
       console.log(data);
-      fetchMessages();
+      socket.emit("send-message", data.message);
+      setMessages([...messages, data.message]);
       toast({
         title: "Message Send Successfully",
         status: "success",
@@ -114,10 +162,13 @@ const ChatBox = () => {
   };
 
   useEffect(() => {
-    if (selectedChat) {
+    if (socketConnected && selectedChat) {
+      console.log(selectedChat);
       fetchMessages();
+
+      selectedChatCompare = selectedChat;
     }
-  }, [selectedChat]);
+  }, [socketConnected, selectedChat]);
 
   return (
     <Box>
@@ -209,15 +260,18 @@ const ChatBox = () => {
                       }
                     >
                       {!loading &&
+                      user.data._id !== item.sender._id &&
                       lastMessage(messages, item.sender._id, index) ? (
                         <WrapItem>
-                          <Avatar
-                            mt={4}
-                            mb={4}
-                            size="sm"
-                            name={item.sender.name}
-                            src={item.sender.pic}
-                          />{" "}
+                          <Tooltip label={item.sender.name} placement="top">
+                            <Avatar
+                              mt={4}
+                              mb={4}
+                              size="sm"
+                              name={item.sender.name}
+                              src={item.sender.pic}
+                            />
+                          </Tooltip>
                         </WrapItem>
                       ) : (
                         ""

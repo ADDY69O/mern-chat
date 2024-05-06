@@ -28,6 +28,39 @@ app.use("/api/message", messageRoutes);
 app.use(notFound);
 app.use(errorHandle);
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+
+const server = app.listen(PORT, () => {
   console.log(`Server started on PORT ${PORT}`);
+});
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: true,
+});
+
+io.on("connection", (socket) => {
+  console.log("connected to socket '_' ");
+
+  socket.on("join-user", (data) => {
+    socket.join(data._id);
+    socket.emit("connected");
+  });
+
+  socket.on("join-chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Room : ", room);
+  });
+
+  socket.on("send-message", (chatMessage) => {
+    var chat = chatMessage.chat;
+
+    chat.users.map((user) => {
+      console.log(user, "{xxxxx}");
+      if (chatMessage.sender._id === user._id) return;
+      else {
+        io.in(user._id).emit("message-received", chatMessage);
+        console.log("Emitted 'message-received' event to user:", user._id);
+      }
+    });
+  });
 });

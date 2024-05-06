@@ -201,7 +201,7 @@ const SideDrawer = () => {
                     <UserListItem
                       key={user._id}
                       user={user}
-                      handleFunction={() => accessChat(user._id)}
+                      handleFunction={() => accessChat(user._id)} 
                     />
                   ))
                 )}
