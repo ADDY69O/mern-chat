@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ChatState } from "../../Context/ChatProvider";
 import {
   Avatar,
@@ -19,42 +19,50 @@ import { Input } from "@chakra-ui/react";
 import { getSender, lastMessage } from "../config/ChatLogics";
 import axios from "axios";
 import io from "socket.io-client";
+var selectedChatCompare;
 
 const ChatBox = () => {
+  const socket = useMemo(() => io(process.env.REACT_APP_ENDPOINT), []);
   const { selectedChat, user } = ChatState();
-  var selectedChatCompare;
 
   const [loading, setLoading] = useState(false);
   const [messageLoading, setmessageLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [socketConnected, SetsocketConnected] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   const toast = useToast();
   useEffect(() => {
-    console.log(process.env.REACT_APP_ENDPOINT);
-    const newSocket = io(process.env.REACT_APP_ENDPOINT);
-    setSocket(newSocket);
-
-    newSocket.emit("join-user", user);
-    newSocket.on("connected", () => {
+    socket.emit("join-user", user);
+    socket.on("connected", () => {
+      console.log("Socket connected");
       SetsocketConnected(true);
     });
-    newSocket.on("message-received", (newMsg) => {
+  }, []);
+  useEffect(() => {
+    if (socketConnected && selectedChat) {
+      console.log("Joining chat:", selectedChat._id); // Add this line
+      fetchMessages();
+
+      selectedChatCompare = selectedChat;
+    }
+  }, [socketConnected, selectedChat]);
+
+  useEffect(() => {
+    console.log("init");
+
+    socket.on("message-received", (newMsg) => {
+      console.log("Message received:", newMsg); // Add this line
       console.log(selectedChatCompare);
-      if (selectedChatCompare && selectedChatCompare._id === newMsg.chat._id) {
-        setMessages([...messages, newMsg]);
+      if (!selectedChatCompare || selectedChatCompare._id !== newMsg.chat._id) {
+        console.log("else condition");
       } else {
         // Handle notification or other logic if needed
-        console.log("else condition");
+
+        setMessages([...messages, newMsg]);
       }
     });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
+  });
 
   const fetchMessages = async () => {
     try {
@@ -86,23 +94,6 @@ const ChatBox = () => {
       return;
     }
   };
-
-  useEffect(() => {
-    if (socketConnected) {
-      socket.on("message-received", (newMsg) => {
-        console.log(selectedChatCompare);
-        if (
-          selectedChatCompare &&
-          selectedChatCompare._id === newMsg.chat._id
-        ) {
-          setMessages([...messages, newMsg]);
-        } else {
-          // Handle notification or other logic if needed
-          console.log("else condition");
-        }
-      });
-    }
-  }, []);
 
   const handleSendMessage = async () => {
     try {
@@ -160,15 +151,6 @@ const ChatBox = () => {
       return;
     }
   };
-
-  useEffect(() => {
-    if (socketConnected && selectedChat) {
-      console.log(selectedChat);
-      fetchMessages();
-
-      selectedChatCompare = selectedChat;
-    }
-  }, [socketConnected, selectedChat]);
 
   return (
     <Box>

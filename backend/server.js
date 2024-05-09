@@ -42,7 +42,9 @@ io.on("connection", (socket) => {
   console.log("connected to socket '_' ");
 
   socket.on("join-user", (data) => {
-    socket.join(data._id);
+    console.log("Join User");
+    socket.join(data.data._id);
+
     socket.emit("connected");
   });
 
@@ -53,13 +55,13 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", (chatMessage) => {
     var chat = chatMessage.chat;
+    if (!chat.users) {
+      return console.log("chat.users is not defined");
+    }
 
-    chat.users.map((user) => {
-      console.log(user, "{xxxxx}");
-      if (chatMessage.sender._id === user._id) return;
-      else {
-        io.in(user._id).emit("message-received", chatMessage);
-        console.log("Emitted 'message-received' event to user:", user._id);
+    chat.users.forEach((user) => {
+      if (chatMessage.sender._id !== user._id) {
+        socket.to(user._id).emit("message-received", chatMessage);
       }
     });
   });
